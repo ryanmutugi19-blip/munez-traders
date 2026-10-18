@@ -1,11 +1,13 @@
 {% load static %}
-
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Munez Traders | Strategies</title>
+    <title>Munez Traders | Strategies & Bots</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Load Chart.js for Live Graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .strategies-page {
             max-width: 1400px;
@@ -13,110 +15,84 @@
             padding: 28px;
             color: #e7edf8;
         }
-        .page-heading {
-            margin-bottom: 28px;
-        }
-        .eyebrow {
-            color: #60a5fa;
-            font-size: 11px;
-            font-weight: bold;
-            letter-spacing: 2px;
-        }
-        .page-heading h1 {
-            margin: 9px 0;
-            font-size: 30px;
-        }
-        .page-heading p {
-            color: #93a4bd;
-            line-height: 1.7;
-        }
-        .demo-label {
-            display: inline-block;
-            margin-top: 8px;
-            padding: 8px 12px;
-            border: 1px solid #594a28;
-            border-radius: 20px;
-            color: #fbbf24;
-            font-size: 12px;
-        }
         .strategy-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: 2fr 1fr;
             gap: 20px;
+            margin-top: 20px;
         }
-        .strategy-card {
-            display: flex;
-            flex-direction: column;
-            min-height: 260px;
-            padding: 23px;
+        .card {
             background: #101b2f;
             border: 1px solid #263650;
-            border-radius: 17px;
+            border-radius: 16px;
+            padding: 24px;
         }
-        .strategy-icon {
-            display: grid;
-            place-items: center;
-            width: 48px;
-            height: 48px;
-            border-radius: 13px;
-            background: rgba(59, 130, 246, .15);
-            color: #60a5fa;
-            font-size: 23px;
+        .chart-container {
+            position: relative;
+            height: 380px;
+            width: 100%;
         }
-        .strategy-card h2 {
-            margin: 20px 0 10px;
-            font-size: 19px;
+        .bot-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        .strategy-card p {
-            color: #9aabc3;
-            font-size: 13px;
-            line-height: 1.8;
-            flex: 1;
+        .form-group label {
+            display: block;
+            color: #8fa1bc;
+            font-size: 12px;
+            margin-bottom: 5px;
         }
-        .strategy-tag {
-            display: inline-block;
-            align-self: flex-start;
-            margin-top: 14px;
-            padding: 7px 10px;
-            border-radius: 7px;
-            background: #1c2a40;
-            color: #a9c9ff;
-            font-size: 11px;
-        }
-        .notice-panel {
-            margin-top: 25px;
-            padding: 20px;
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            background: #0b1322;
             border: 1px solid #263650;
-            border-radius: 14px;
-            background: rgba(16, 27, 47, .8);
-            color: #9aabc3;
-            font-size: 13px;
-            line-height: 1.8;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+        .btn-bot {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        .btn-start { background: #34d399; color: #0b1322; }
+        .btn-stop { background: #fb7185; color: white; }
+        .bot-logs {
+            background: #0b1322;
+            border: 1px solid #263650;
+            border-radius: 8px;
+            padding: 12px;
+            height: 180px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            color: #34d399;
         }
         @media (max-width: 900px) {
-            .strategy-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-        @media (max-width: 600px) {
-            .strategies-page { padding: 16px; }
             .strategy-grid { grid-template-columns: 1fr; }
-            .page-heading h1 { font-size: 25px; }
         }
     </style>
 </head>
-<body class="trading-body"><header class="horizontal-nav">
-    <a class="brand" href="{% url 'home' %}">
+<body class="trading-body">
+
+<header class="horizontal-nav">
+   <a class="brand" href="{% url 'home' %}">
     <span class="brand-icon">M</span>
     <span>MUNEZ <b>TRADERS</b><small>TRADING TERMINAL</small></span>
-</a><nav class="horizontal-links">
+</a>
+<nav class="horizontal-links">
     <a class="horizontal-link" href="{% url 'home' %}">▦ Dashboard</a>
     <a class="horizontal-link" href="{% url 'markets' %}">⌁ Markets</a>
-    <a class="horizontal-link active" href="{% url 'strategies' %}">◈ Strategies</a>
+    <a class="horizontal-link active" href="{% url 'strategies' %}">◈ Strategies & Bots</a>
     <a class="horizontal-link" href="{% url 'history' %}">◷ Trade History</a>
     <a class="horizontal-link" href="{% url 'settings' %}">⚙ Settings</a>
 </nav>
-
 <div class="horizontal-account">
     <span class="top-avatar">{{ request.user.username|first|upper }}</span>
     <form action="{% url 'logout' %}" method="post">
@@ -124,81 +100,139 @@
         <button type="submit" class="horizontal-logout">Sign Out</button>
     </form>
 </div>
+</header>
 
-</header><main class="strategies-page">
-    <section class="page-heading">
-        <span class="eyebrow">TRADING WORKSPACE</span>
-        <h1>Trading Strategies</h1>
-        <p>Explore educational approaches to studying market movements.</p>
-        <span class="demo-label">● EDUCATIONAL DEMO</span>
-    </section><section class="strategy-grid">
-    <article class="strategy-card">
-        <div class="strategy-icon">↗</div>
-        <h2>Trend Following</h2>
-        <p>
-            Learn how traders study a market's general direction over time
-            and use charts to identify possible trends.
-        </p>
-        <span class="strategy-tag">Trend analysis</span>
-    </article>
+<main class="strategies-page">
+    <h1>Automated Strategies & Live Chart</h1>
+    <p>Monitor real-time market action and run automated trading logic.</p>
 
-    <article class="strategy-card">
-        <div class="strategy-icon">⇄</div>
-        <h2>Support &amp; Resistance</h2>
-        <p>
-            Study price areas where movements have previously slowed,
-            paused, or changed direction.
-        </p>
-        <span class="strategy-tag">Chart analysis</span>
-    </article>
+    <div class="strategy-grid">
+        <!-- LEFT: LIVE GRAPH -->
+        <div class="card">
+            <h3>Volatility 100 Index - Real-Time Chart</h3>
+            <div class="chart-container">
+                <canvas id="liveChart"></canvas>
+            </div>
+        </div>
 
-    <article class="strategy-card">
-        <div class="strategy-icon">〽</div>
-        <h2>Moving Averages</h2>
-        <p>
-            Learn how average prices over selected periods can help
-            illustrate historical market direction.
-        </p>
-        <span class="strategy-tag">Technical indicator</span>
-    </article>
+        <!-- RIGHT: BOT CONTROL PANEL -->
+        <div class="card bot-controls">
+            <h3>Bot Executor</h3>
+            <div class="form-group">
+                <label>Asset Symbol</label>
+                <input type="text" id="botSymbol" value="R_100" readonly>
+            </div>
+            <div class="form-group">
+                <label>Stake Amount ($)</label>
+                <input type="number" id="botStake" value="1.00">
+            </div>
+            <button id="toggleBotBtn" class="btn-bot btn-start" onclick="toggleBot()">Start Trading Bot</button>
+            
+            <div class="form-group">
+                <label>Live Bot Logs</label>
+                <div id="botLogs" class="bot-logs">[System]: Bot initialized. Ready to start.<br></div>
+            </div>
+        </div>
+    </div>
+</main>
 
-    <article class="strategy-card">
-        <div class="strategy-icon">◷</div>
-        <h2>Multiple Timeframes</h2>
-        <p>
-            Compare charts over different time intervals to understand
-            how the view of a market can change.
-        </p>
-        <span class="strategy-tag">Timeframe analysis</span>
-    </article>
+<!-- LIVE WEBSOCKET GRAPH & BOT SCRIPT -->
+<script>
+    const APP_ID = '1089'; // Use public test ID or your numeric App ID
+    const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`);
 
-    <article class="strategy-card">
-        <div class="strategy-icon">⌁</div>
-        <h2>Risk Management</h2>
-        <p>
-            Explore educational concepts such as setting practice limits,
-            considering uncertainty, and avoiding excessive exposure.
-        </p>
-        <span class="strategy-tag">Risk awareness</span>
-    </article>
+    let chart;
+    let botRunning = false;
+    let lastPrice = 0;
 
-    <article class="strategy-card">
-        <div class="strategy-icon">▤</div>
-        <h2>Trading Journal</h2>
-        <p>
-            Learn to record practice decisions, explain your reasoning,
-            and review outcomes to improve your understanding.
-        </p>
-        <span class="strategy-tag">Performance review</span>
-    </article>
-</section>
+    // Initialize Chart.js Graph
+    function initChart() {
+        const ctx = document.getElementById('liveChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Volatility 100 Tick Price',
+                    data: [],
+                    borderColor: '#34d399',
+                    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { ticks: { color: '#8fa1bc' }, grid: { color: '#263650' } },
+                    y: { ticks: { color: '#8fa1bc' }, grid: { color: '#263650' } }
+                }
+            }
+        });
+    }
 
-<section class="notice-panel">
-    <strong>Educational notice</strong><br>
-    These strategy descriptions are for learning and interface testing.
-    They are not live trading signals, guaranteed methods, or financial advice.
-    E.Traders is not currently executing real trades from this page.
-</section>
+    ws.onopen = function () {
+        logMessage('Connected to Deriv live feed.');
+        // Subscribe to ticks for R_100
+        ws.send(JSON.stringify({ ticks: 'R_100', subscribe: 1 }));
+    };
 
-</main></body>
+    ws.onmessage = function (event) {
+        const response = JSON.parse(event.data);
+
+        if (response.msg_type === 'tick') {
+            const tick = response.tick;
+            const price = tick.quote;
+            const timeStr = new Date(tick.epoch * 1000).toLocaleTimeString();
+
+            // Update Chart Data
+            if (chart) {
+                if (chart.data.labels.length > 20) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
+                chart.data.labels.push(timeStr);
+                chart.data.datasets[0].data.push(price);
+                chart.update('none');
+            }
+
+            // Simple Bot Strategy Logic (Demo: Buy Call if price increases)
+            if (botRunning) {
+                if (price > lastPrice) {
+                    logMessage(`[Bot Signal]: Price went UP (${price}). Simulating CALL trade...`);
+                } else if (price < lastPrice) {
+                    logMessage(`[Bot Signal]: Price went DOWN (${price}). Simulating PUT trade...`);
+                }
+            }
+            lastPrice = price;
+        }
+    };
+
+    function toggleBot() {
+        botRunning = !botRunning;
+        const btn = document.getElementById('toggleBotBtn');
+        if (botRunning) {
+            btn.innerText = 'Stop Trading Bot';
+            btn.className = 'btn-bot btn-stop';
+            logMessage('🟢 Bot started successfully.');
+        } else {
+            btn.innerText = 'Start Trading Bot';
+            btn.className = 'btn-bot btn-start';
+            logMessage('🔴 Bot stopped by user.');
+        }
+    }
+
+    function logMessage(text) {
+        const logs = document.getElementById('botLogs');
+        logs.innerHTML += `> ${text}<br>`;
+        logs.scrollTop = logs.scrollHeight;
+    }
+
+    // Run chart initialization on load
+    window.onload = initChart;
+</script>
+
+</body>
 </html>
