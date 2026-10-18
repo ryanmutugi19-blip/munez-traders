@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Munez Traders | Markets</title>
+    <title>Munez Traders | All Markets & Demo Mode</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
         .markets-page {
@@ -23,18 +23,54 @@
         }
         .markets-heading h1 { margin: 8px 0; font-size: 30px; }
         .markets-heading p { color: #93a4bd; }
-        .market-tag { color: #60a5fa; font-size: 11px; font-weight: bold; letter-spacing: 2px; }
-        .demo-badge {
-            border: 1px solid #34415b;
+        
+        /* Mode Toggle Switch Styling */
+        .mode-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #101b2f;
+            border: 1px solid #263650;
+            padding: 8px 16px;
             border-radius: 30px;
-            padding: 10px 14px;
-            color: #fbbf24;
-            font-size: 12px;
-            transition: all 0.3s ease;
         }
+        .mode-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #8fa1bc;
+            cursor: pointer;
+        }
+        .mode-label.active {
+            color: #34d399;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #263650;
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #34d399; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
         .market-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 18px;
         }
         .market-card {
@@ -51,36 +87,21 @@
         }
         .market-symbol { font-weight: bold; font-size: 17px; }
         .market-type { display: block; color: #8fa1bc; font-size: 12px; margin-top: 5px; }
-        .market-price { font-size: 27px; font-weight: bold; margin-top: 24px; transition: color 0.2s; }
-        .market-change { margin-top: 8px; font-size: 13px; font-weight: bold; }
+        .market-price { font-size: 24px; font-weight: bold; margin-top: 20px; }
+        .market-change { margin-top: 6px; font-size: 12px; font-weight: bold; }
         .up { color: #34d399 !important; }
         .down { color: #fb7185 !important; }
-        .market-table-wrap {
-            margin-top: 24px;
-            overflow-x: auto;
-            background: #101b2f;
-            border: 1px solid #263650;
-            border-radius: 16px;
-            padding: 20px;
+
+        @media (max-width: 1000px) {
+            .market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
-        .market-table { width: 100%; border-collapse: collapse; min-width: 460px; }
-        .market-table th, .market-table td {
-            padding: 15px 12px;
-            text-align: left;
-            border-bottom: 1px solid #263650;
-        }
-        .market-table th { color: #8fa1bc; font-size: 11px; }
-        .market-table td { font-size: 13px; }
-        .market-table tr:last-child td { border-bottom: none; }
-        .market-note { color: #91a1b9; font-size: 12px; line-height: 1.7; margin-top: 24px; }
         @media (max-width: 700px) {
-            .markets-page { padding: 16px; }
             .market-grid { grid-template-columns: 1fr; }
-            .markets-heading h1 { font-size: 25px; }
         }
     </style>
 </head>
 <body class="trading-body">
+
 <header class="horizontal-nav">
    <a class="brand" href="{% url 'home' %}">
     <span class="brand-icon">M</span>
@@ -89,11 +110,10 @@
 <nav class="horizontal-links">
     <a class="horizontal-link" href="{% url 'home' %}">▦ Dashboard</a>
     <a class="horizontal-link active" href="{% url 'markets' %}">⌁ Markets</a>
-    <a class="horizontal-link" href="{% url 'strategies' %}">◈ Strategies</a>
+    <a class="horizontal-link" href="{% url 'strategies' %}">◈ Strategies & Bots</a>
     <a class="horizontal-link" href="{% url 'history' %}">◷ Trade History</a>
     <a class="horizontal-link" href="{% url 'settings' %}">⚙ Settings</a>
 </nav>
-
 <div class="horizontal-account">
     <span class="top-avatar">{{ request.user.username|first|upper }}</span>
     <form action="{% url 'logout' %}" method="post">
@@ -106,109 +126,123 @@
 <main class="markets-page">
     <section class="markets-heading">
         <div>
-            <span class="market-tag">MARKET OVERVIEW</span>
-            <h1>Explore Markets</h1>
-            <p>Live real-time price feeds streamed directly from Deriv.</p>
+            <span class="market-symbol" style="color: #60a5fa; letter-spacing: 2px; font-size: 11px;">LIVE ASSET STREAMS</span>
+            <h1>Explore All Markets</h1>
+            <p>Real-time quotes across Synthetics, Forex, and Cryptocurrencies.</p>
         </div>
-        <span class="demo-badge" id="feed-status">● CONNECTING TO DERIV...</span>
+
+        <!-- DEMO / REAL ACCOUNT TOGGLE -->
+        <div class="mode-toggle-container">
+            <span id="demoLabel" class="mode-label active">DEMO PRACTICE</span>
+            <label class="switch">
+                <input type="checkbox" id="accountModeToggle" onchange="toggleTradingMode()">
+                <span class="slider"></span>
+            </label>
+            <span id="realLabel" class="mode-label">REAL ACCOUNT</span>
+        </div>
     </section>
 
-    <!-- LIVE MARKET CARDS GRID -->
+    <!-- COMPREHENSIVE LIVE MARKETS GRID -->
     <section class="market-grid">
-        <!-- Volatility 100 Index -->
+        <!-- Volatility 100 -->
         <article class="market-card">
             <div class="market-card-top">
                 <div>
                     <div class="market-symbol">Volatility 100 Index</div>
                     <span class="market-type">Synthetic Index</span>
                 </div>
-                <span class="market-change up">24/7 Market</span>
+                <span class="market-change up">24/7</span>
             </div>
             <div class="market-price" id="price-R_100">Connecting...</div>
-            <div class="market-change" id="change-R_100">Waiting for ticks...</div>
+            <div class="market-change" id="change-R_100">Waiting for tick...</div>
         </article>
 
-        <!-- EUR/USD Forex -->
+        <!-- Volatility 75 -->
+        <article class="market-card">
+            <div class="market-card-top">
+                <div>
+                    <div class="market-symbol">Volatility 75 Index</div>
+                    <span class="market-type">Synthetic Index</span>
+                </div>
+                <span class="market-change up">24/7</span>
+            </div>
+            <div class="market-price" id="price-R_75">Connecting...</div>
+            <div class="market-change" id="change-R_75">Waiting for tick...</div>
+        </article>
+
+        <!-- Boom 1000 -->
+        <article class="market-card">
+            <div class="market-card-top">
+                <div>
+                    <div class="market-symbol">Boom 1000 Index</div>
+                    <span class="market-type">Synthetic Index</span>
+                </div>
+                <span class="market-change up">24/7</span>
+            </div>
+            <div class="market-price" id="price-BOOM1000">Connecting...</div>
+            <div class="market-change" id="change-BOOM1000">Waiting for tick...</div>
+        </article>
+
+        <!-- EUR/USD -->
         <article class="market-card">
             <div class="market-card-top">
                 <div>
                     <div class="market-symbol">EUR / USD</div>
                     <span class="market-type">Forex Pair</span>
                 </div>
-                <span class="market-change up">Major Forex</span>
+                <span class="market-change up">Major</span>
             </div>
             <div class="market-price" id="price-frxEURUSD">Connecting...</div>
-            <div class="market-change" id="change-frxEURUSD">Waiting for ticks...</div>
+            <div class="market-change" id="change-frxEURUSD">Waiting for tick...</div>
+        </article>
+
+        <!-- GBP/USD -->
+        <article class="market-card">
+            <div class="market-card-top">
+                <div>
+                    <div class="market-symbol">GBP / USD</div>
+                    <span class="market-type">Forex Pair</span>
+                </div>
+                <span class="market-change up">Major</span>
+            </div>
+            <div class="market-price" id="price-frxGBPUSD">Connecting...</div>
+            <div class="market-change" id="change-frxGBPUSD">Waiting for tick...</div>
+        </article>
+
+        <!-- Bitcoin (BTC/USD) -->
+        <article class="market-card">
+            <div class="market-card-top">
+                <div>
+                    <div class="market-symbol">BTC / USD</div>
+                    <span class="market-type">Crypto Index</span>
+                </div>
+                <span class="market-change up">24/7</span>
+            </div>
+            <div class="market-price" id="price-cryBTCUSD">Connecting...</div>
+            <div class="market-change" id="change-cryBTCUSD">Waiting for tick...</div>
         </article>
     </section>
-
-    <!-- LIVE MARKET TABLE WATCH -->
-    <section class="market-table-wrap">
-        <h2>Market Watch</h2>
-        <table class="market-table">
-            <thead>
-                <tr>
-                    <th>INSTRUMENT</th>
-                    <th>TYPE</th>
-                    <th>LIVE PRICE</th>
-                    <th>FEED STATUS</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Volatility 100 (R_100)</td>
-                    <td>Synthetic Index</td>
-                    <td id="table-price-R_100">Connecting...</td>
-                    <td id="table-status-R_100">Initializing...</td>
-                </tr>
-                <tr>
-                    <td>EUR / USD (frxEURUSD)</td>
-                    <td>Forex Currency</td>
-                    <td id="table-price-frxEURUSD">Connecting...</td>
-                    <td id="table-status-frxEURUSD">Initializing...</td>
-                </tr>
-            </tbody>
-        </table>
-    </section>
-
-    <p class="market-note">
-        Live market data is streamed in real-time directly from the official Deriv WebSocket API servers.
-    </p>
 </main>
 
-<!-- DERIV WEBSOCKET REAL-TIME SCRIPT -->
+<!-- MULTI-MARKET WEBSOCKET FEED SCRIPT -->
 <script>
-    // ------------------------------------------------------------------------
-    // Replace '1089' with your actual numeric App ID if you have one.
-    // '1089' is Deriv's official public test App ID (Numeric Only).
-    // ------------------------------------------------------------------------
-    const APP_ID = '1089'; 
-
+    const APP_ID = '1089'; // Public Deriv test App ID
     const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`);
     const lastPrices = {};
 
-    ws.onopen = function () {
-        console.log('✅ Deriv WebSocket Connection Established');
-        
-        const badge = document.getElementById('feed-status');
-        if (badge) {
-            badge.innerText = '● LIVE DERIV FEED';
-            badge.style.color = '#34d399';
-            badge.style.borderColor = '#34d399';
-        }
+    // List of all symbols to stream live
+    const symbols = ['R_100', 'R_75', 'BOOM1000', 'frxEURUSD', 'frxGBPUSD', 'cryBTCUSD'];
 
-        // Subscribe to ticks
-        ws.send(JSON.stringify({ ticks: 'R_100', subscribe: 1 }));
-        ws.send(JSON.stringify({ ticks: 'frxEURUSD', subscribe: 1 }));
+    ws.onopen = function () {
+        console.log('✅ Connected to Deriv Multi-Market Feed');
+        // Subscribe to all markets simultaneously
+        symbols.forEach(symbol => {
+            ws.send(JSON.stringify({ ticks: symbol, subscribe: 1 }));
+        });
     };
 
     ws.onmessage = function (event) {
         const response = JSON.parse(event.data);
-
-        if (response.error) {
-            console.error('Deriv API Error:', response.error.message);
-            return;
-        }
 
         if (response.msg_type === 'tick') {
             const tick = response.tick;
@@ -217,39 +251,46 @@
 
             const priceEl = document.getElementById(`price-${symbol}`);
             const changeEl = document.getElementById(`change-${symbol}`);
-            const tablePriceEl = document.getElementById(`table-price-${symbol}`);
-            const tableStatusEl = document.getElementById(`table-status-${symbol}`);
-
-            const previousPrice = lastPrices[symbol] || currentPrice;
-            const isUp = currentPrice >= previousPrice;
-
-            const formattedPrice = (symbol === 'frxEURUSD') 
-                ? currentPrice.toFixed(5) 
-                : currentPrice.toFixed(2);
 
             if (priceEl) {
-                priceEl.innerText = formattedPrice;
+                const prevPrice = lastPrices[symbol] || currentPrice;
+                const isUp = currentPrice >= prevPrice;
+
+                // Format decimals based on market type
+                let decimals = 2;
+                if (symbol.includes('frx')) decimals = 5;
+                if (symbol.includes('cry')) decimals = 2;
+
+                priceEl.innerText = currentPrice.toFixed(decimals);
                 priceEl.className = isUp ? 'market-price up' : 'market-price down';
-            }
 
-            if (changeEl) {
-                changeEl.innerText = isUp ? '▲ Ticking Up' : '▼ Ticking Down';
-                changeEl.className = isUp ? 'market-change up' : 'market-change down';
-            }
+                if (changeEl) {
+                    changeEl.innerText = isUp ? '▲ Upward Tick' : '▼ Downward Tick';
+                    changeEl.className = isUp ? 'market-change up' : 'market-change down';
+                }
 
-            if (tablePriceEl) tablePriceEl.innerText = formattedPrice;
-            if (tableStatusEl) {
-                tableStatusEl.innerText = 'Streaming Live';
-                tableStatusEl.style.color = '#34d399';
+                lastPrices[symbol] = currentPrice;
             }
-
-            lastPrices[symbol] = currentPrice;
         }
     };
 
-    ws.onerror = function (err) {
-        console.error('❌ WebSocket Connection Error:', err);
-    };
+    // Toggle Mode Functionality (Demo Practice vs Real Trading)
+    function toggleTradingMode() {
+        const isReal = document.getElementById('accountModeToggle').checked;
+        const demoLabel = document.getElementById('demoLabel');
+        const realLabel = document.getElementById('realLabel');
+
+        if (isReal) {
+            demoLabel.classList.remove('active');
+            realLabel.classList.add('active');
+            alert('Switched to REAL mode. Make sure your live account token is connected in Settings to execute live capital trades.');
+        } else {
+            realLabel.classList.remove('active');
+            demoLabel.classList.add('active');
+            alert('Switched to DEMO PRACTICE mode. All simulated orders use virtual funds.');
+        }
+    }
 </script>
+
 </body>
 </html>
