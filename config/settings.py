@@ -182,3 +182,26 @@ CSRF_COOKIE_SECURE = (
 SECURE_HSTS_SECONDS = int(
     os.environ.get('DJANGO_SECURE_HSTS_SECONDS', '0')
 )
+
+# Temporary production error logging for debugging HTTP 500s
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
