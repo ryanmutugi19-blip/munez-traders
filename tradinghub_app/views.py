@@ -278,7 +278,9 @@ def markets_page(request):
         'demo_markets': demo_markets,
     })
 
-def intro_page(request):
-    return render(request, 'intro.html')
 def entry_page(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'intro.html')
+
+def intro_page(request):    return render(request, 'intro.html')      

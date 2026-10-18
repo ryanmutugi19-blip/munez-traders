@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns = [
     # Website opening animation
-    path('', views.entry_page, name='home'),
+    path('', views.entry_page, name='home'),path('dashboard/', views.home, name='dashboard'),
 
     # Main website pages
     path('login/', views.login_page, name='login'),
