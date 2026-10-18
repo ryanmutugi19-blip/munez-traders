@@ -19,6 +19,7 @@
     );
 
     if (!status || !price || !selector) {
+        console.warn("Deriv market widget is missing required DOM elements.");
         return;
     }
 
@@ -45,10 +46,14 @@
     let activeSymbol = null;
 
     function selectedMarket() {
-        const option = selector.selectedOptions[0];
+        const option = selector.selectedOptions && selector.selectedOptions[0];
+        if (!option) {
+            return { label: "", symbol: "" };
+        }
+
         return {
-            label: option.value,
-            symbol: option.dataset.derivSymbol,
+            label: option.value || "",
+            symbol: option.dataset.derivSymbol || "",
         };
     }
 
