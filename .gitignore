@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local database
+db.sqlite3
+
+# Generated files
+staticfiles/
+media/
+
+# Editor files
+.vscode/
+.DS_Store
+
+# Settings backups
+config/settings_backup.py
+# Temporary editor files and backups
+*.swp
+*.swo
+*~
+*_backup.*
+*.backup

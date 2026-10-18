@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Munez Traders | Create Account</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <section class="login-page">
+        <div class="login-container">
+            <div class="login-logo">Munez Traders</div>
+
+            <h1>Create Account</h1>
+            <p>Register to access your dashboard.</p>
+
+            <form method="post" action="{% url 'register' %}">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="error-message">
+                        <p>Please correct the errors below.</p>
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <small>{{ field.help_text }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <button type="submit" class="login-submit">
+                    Create Account
+                </button>
+            </form>
+
+            <p class="register-link">
+                Already have an account?
+                <a href="{% url 'login' %}">Login</a>
+            </p>
+
+            {% if affiliate_enabled %}
+                <p class="register-link">
+                    New to Deriv?
+                    <a href="{% url 'deriv_signup' %}">Open a Deriv account</a>
+                </p>
+            {% endif %}
+
+            <a href="{% url 'home' %}" class="back-home">
+                ← Back to Home
+            </a>
+        </div>
+    </section>
+</body>
+</html>
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Trading Hub</title>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 100px;">
+        <h2>Welcome to Trading Hub</h2>
+        <p>Connect your Deriv account to start trading.</p>
+        <button id="login-btn" style="padding: 10px 20px; font-size: 16px; background: #ff444f; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            Login with Deriv
+        </button>
+    </div>
+
+    <script src="{% static 'js/deriv.js' %}"></script>
+    <script>
+        document.getElementById('login-btn').addEventListener('click', () => {
+            redirectToDerivLogin();
+        });
+    </script>
+</body>
+</html>

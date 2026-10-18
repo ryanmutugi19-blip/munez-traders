@@ -1,0 +1,532 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E.Traders | Trading Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="trading-body">
+
+<div class="app-shell">
+
+   <header class="horizontal-nav">
+    <a class="brand" href="{% url 'home' %}">
+    <span class="brand-icon">M</span>
+    <span>MUNEZ <b>TRADERS</b><small>TRADING TERMINAL</small></span>
+</a>
+    <nav class="horizontal-links">
+        <a class="horizontal-link active" href="{% url 'home' %}">
+            <span>▦</span> Dashboard
+        </a>
+        <a class="horizontal-link" href="{% url 'markets' %}">
+    <span>⌁</span> Markets
+</a>
+        
+        <a class="horizontal-link" href="{% url 'strategies' %}">
+            <span>◈</span> Strategies
+        </a>
+        <a class="horizontal-link" href="{% url 'history' %}">
+            <span>◷</span> Trade History
+        </a>
+        <a class="horizontal-link" href="{% url 'settings' %}">
+            <span>⚙</span> Settings
+        </a>
+    </nav>
+
+    <div class="horizontal-account">
+        <span class="top-avatar">
+            {{ request.user.username|first|upper }}
+        </span>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="horizontal-logout">
+                Sign Out
+            </button>
+        </form>
+    </div>
+</header>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <div class="breadcrumb">WORKSPACE / DASHBOARD</div>
+                <h1>Trading Dashboard</h1>
+            </div>
+            <div class="topbar-right">
+                <span class="market-status">
+                    <span class="status-dot"></span> Terminal ready
+                </span>
+                <div class="top-avatar">
+                    {{ request.user.username|first|upper }}
+                </div>
+            </div>
+        </header>
+
+        <section class="hero-panel">
+            <div class="hero-overlay"></div>
+
+            <div class="hero-content">
+                <span class="eyebrow">
+                    <span class="status-dot"></span>
+                    YOUR TRADING COMMAND CENTER
+                </span>
+
+                <h2>Welcome back,<br>
+                    <span>{{ request.user.username }}</span>
+                </h2>
+
+                <p>
+                    Monitor the markets, explore strategies and manage
+                    your trading workspace from one place.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="#markets" class="primary-button">
+                        Explore Markets <span>→</span>
+                    </a>
+                    <a href="{% url 'strategies' %}" class="outline-button">
+                        View Strategies
+                    </a>
+                    {% if affiliate_enabled %}
+                        <a href="{% url 'deriv_signup' %}" class="outline-button">
+                            Open a Deriv Account
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="hero-badge">
+                <span class="badge-icon">✦</span>
+                <div>
+                    <strong>E.TRADERS</strong>
+                    <small>SMART TRADING WORKSPACE</small>
+                </div>
+            </div>
+        </section>
+
+        <section id="account" class="section-block">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">YOUR ACCOUNT</span>
+                    <h2>Account Overview</h2>
+                </div>
+                <span class="demo-badge">DEMO DATA</span>
+            </div>
+
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Account Balance</span>
+                        <span class="stat-icon blue">◉</span>
+                    </div>
+                    <h3>—</h3>
+                    <p>Awaiting account connection</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Profit / Loss</span>
+                        <span class="stat-icon green">↗</span>
+                    </div>
+                    <h3>—</h3>
+                    <p>No live trading data</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span>Open Positions</span>
+                        <span class="stat-icon purple">⌁</span>
+                    </div>
+                    <h3>0</h3>
+                    <p>No positions loaded</p>
+                </article>
+
+                <article class="stat-card" id="connection">
+                    <div class="stat-top">
+                        <span>Broker Connection</span>
+                        <span class="stat-icon orange">◎</span>
+                    </div>
+                    <h3 class="connection-text">Not connected</h3>
+                    <p>Public market prices do not connect your account</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="deriv-market-feed" class="section-block"
+                 data-app-id="{{ deriv_app_id }}">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">MARKET WATCH</span>
+                    <h2>Trading Terminal</h2>
+                    <p class="section-description">
+                        Live public quotes from Deriv. Orders below are practice-only.
+                    </p>
+                </div>
+                <span class="live-label">
+                    <span class="status-dot"></span> LIVE QUOTES · PRACTICE ORDERS
+                </span>
+            </div>
+
+            <p id="market-feed-status" aria-live="polite">
+                Checking Deriv live market feed...
+            </p>
+
+            <div class="terminal-grid">
+
+                <div class="terminal-main panel-card">
+                    <div class="terminal-heading">
+                        <div class="pair-heading">
+                            <div class="pair-icon">€$</div>
+                            <div>
+                                <h3 id="live-market-title">EUR / USD</h3>
+                                <span>Euro / US Dollar</span>
+                            </div>
+                        </div>
+                        <span class="demo-badge">LIVE QUOTE</span>
+                    </div>
+
+                    <div class="chart-summary">
+                        <div>
+                            <span class="muted-label">Latest Deriv quote</span>
+                            <h2 id="live-market-price">—</h2>
+                        </div>
+                        <span class="chart-change">PUBLIC DATA</span>
+                    </div>
+
+                    <div class="chart-area">
+                        <div class="chart-grid"></div>
+
+                        <svg class="price-chart"
+                             viewBox="0 0 700 240"
+                             preserveAspectRatio="none"
+                             role="img"
+                             aria-label="Illustrative practice price chart">
+                            <defs>
+                                <linearGradient id="chartFill"
+                                    x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%"
+                                        stop-color="#14d9a0"
+                                        stop-opacity=".25"/>
+                                    <stop offset="100%"
+                                        stop-color="#14d9a0"
+                                        stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path class="chart-fill"
+                                d="M0 180 L35 160 L65 174 L100 125
+                                L135 143 L170 100 L205 119 L240 83
+                                L275 110 L310 72 L345 91 L380 48
+                                L415 79 L450 60 L485 94 L520 45
+                                L555 65 L590 35 L625 55 L660 22
+                                L700 38 L700 240 L0 240 Z"/>
+                            <polyline class="chart-line"
+                                points="0,180 35,160 65,174 100,125
+                                135,143 170,100 205,119 240,83
+                                275,110 310,72 345,91 380,48
+                                415,79 450,60 485,94 520,45
+                                555,65 590,35 625,55 660,22 700,38"/>
+                        </svg>
+
+                        <span class="chart-watermark">DEMO</span>
+                    </div>
+
+                    <div class="chart-legend">
+                        <span><i class="legend-dot"></i> Illustrative chart artwork</span>
+                        <span>Live quote above · chart is not historical data</span>
+                    </div>
+
+                    <div class="timeframes" aria-label="Chart timeframes">
+                        <button type="button" class="time-button active">1M</button>
+                        <button type="button" class="time-button">5M</button>
+                        <button type="button" class="time-button">15M</button>
+                        <button type="button" class="time-button">1H</button>
+                        <button type="button" class="time-button">4H</button>
+                        <button type="button" class="time-button">1D</button>
+                    </div>
+                </div>
+
+                <aside class="order-panel panel-card">
+                    <div class="order-heading">
+                        <div>
+                            <span class="eyebrow">ORDER PANEL</span>
+                            <h3>Place Practice Order</h3>
+                        </div>
+                        <span class="order-icon">↗</span>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="market-select">Market</label>
+                        <select id="market-select">
+                            <option value="EUR/USD" data-deriv-symbol="frxEURUSD">EUR / USD</option>
+                            <option value="GBP/USD" data-deriv-symbol="frxGBPUSD">GBP / USD</option>
+                            <option value="USD/JPY" data-deriv-symbol="frxUSDJPY">USD / JPY</option>
+                            <option value="BTC/USD" data-deriv-symbol="cryBTCUSD">BTC / USD</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="order-amount">Practice amount</label>
+                        <div class="amount-input">
+                            <span>$</span>
+                            <input id="order-amount"
+                                type="number"
+                                min="1"
+                                max="10000"
+                                step="1"
+                                value="10">
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="order-duration">Practice duration</label>
+                        <select id="order-duration">
+                            <option value="1">1 minute</option>
+                            <option value="5">5 minutes</option>
+                            <option value="15">15 minutes</option>
+                            <option value="60">1 hour</option>
+                        </select>
+                    </div>
+
+                    <div class="order-note">
+                        <span>ⓘ</span>
+                        These controls do not place real trades or send
+                        orders to Deriv.
+                    </div>
+
+                    <div class="trade-buttons">
+                        <button type="button" class="trade-button buy-button"
+                            data-direction="BUY">
+                            <span>↗</span>
+                            <span>BUY<small>Practice order</small></span>
+                        </button>
+
+                        <button type="button" class="trade-button sell-button"
+                            data-direction="SELL">
+                            <span>↘</span>
+                            <span>SELL<small>Practice order</small></span>
+                        </button>
+                    </div>
+
+                    <p id="trade-message" class="trade-message"
+                        aria-live="polite">
+                        Select an order direction to begin a practice action.
+                    </p>
+                </aside>
+            </div>
+        </section>
+        <!-- PERSONAL MARKET WATCHLIST -->
+        <section id="watchlist" class="section-block">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">YOUR FAVOURITES</span>
+                    <h2>Personal Watchlist</h2>
+                    <p class="section-description">
+                        Keep track of the markets you want to monitor.
+                    </p>
+                </div>
+                <span class="demo-badge">
+                    {{ watchlist|length }} SAVED
+                </span>
+            </div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="small-note">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+
+            <div class="panel-card" style="margin-bottom: 20px;">
+                <form method="post" action="{% url 'add_watchlist' %}"
+                      style="display:flex; gap:12px; flex-wrap:wrap;">
+                    {% csrf_token %}
+
+                    <label for="watchlist-symbol"
+                           style="align-self:center;">
+                        Add market
+                    </label>
+
+                    <input
+                        id="watchlist-symbol"
+                        name="symbol"
+                        type="text"
+                        maxlength="30"
+                        placeholder="e.g. EUR/USD"
+                        required
+                        style="flex:1; min-width:160px; padding:12px;
+                               border-radius:8px;">
+
+                    <button type="submit" class="primary-button">
+                        + Add to Watchlist
+                    </button>
+                </form>
+            </div>
+
+            <div class="panel-card">
+                {% if watchlist %}
+                    {% for item in watchlist %}
+                        <div class="system-row">
+                            <div>
+                                <strong>{{ item.symbol }}</strong>
+
+<button
+    type="button"
+    class="horizontal-logout"
+    onclick="selectWatchlistMarket('{{ item.symbol|escapejs }}')">
+    Trade
+</button>
+                                <p class="small-note">
+                                    Saved {{ item.added_at|date:"d M Y, H:i" }}
+                                </p>
+                            </div>
+
+                            <form method="post"
+                                  action="{% url 'remove_watchlist' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="horizontal-logout">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="small-note">
+                        Your watchlist is empty. Add a market above to get started.
+                    </p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="bottom-grid">
+            <div class="panel-card bottom-card">
+                <div class="section-heading compact-heading">
+                    <div>
+                        <span class="eyebrow">QUICK ACCESS</span>
+                        <h2>Your Workspace</h2>
+                    </div>
+                </div>
+
+                <a href="{% url 'strategies' %}" class="quick-link">
+                    <span class="quick-icon">◈</span>
+                    <span><strong>Trading Strategies</strong>
+                        <small>Explore your strategy page</small></span>
+                    <span class="quick-arrow">→</span>
+                </a>
+
+                <a href="{% url 'history' %}" class="quick-link">
+                    <span class="quick-icon purple">◷</span>
+                    <span><strong>Trade History</strong>
+                        <small>View your history page</small></span>
+                    <span class="quick-arrow">→</span>
+                </a>
+            </div>
+
+            <div class="panel-card bottom-card">
+                <span class="eyebrow">SYSTEM STATUS</span>
+                <h2>Platform Information</h2>
+
+                <div class="system-row">
+                    <span>Django dashboard</span>
+                    <span class="system-ok">Available</span>
+                </div>
+                <div class="system-row">
+                    <span>Practice terminal</span>
+                    <span class="system-ok">Available</span>
+                </div>
+                <div class="system-row">
+                    <span>Deriv public prices</span>
+                    <span class="{% if deriv_app_id %}system-ok{% else %}system-pending{% endif %}">
+                        {% if deriv_app_id %}Configured{% else %}App ID required{% endif %}
+                    </span>
+                </div>
+
+                <p class="small-note">
+                    This feed shows public prices only. Account balances,
+                    profit and loss, and real orders need separate Deriv
+                    account authorization.
+                </p>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span>© 2026 E.Traders</span>
+            <span>Trade smart. Stay informed.</span>
+        </footer>
+
+    </main>
+</div>
+
+{% load static %}
+<script src="{% static 'js/deriv_market.js' %}" defer></script>
+<script>
+document.querySelectorAll(".time-button").forEach(function(button) {
+    button.addEventListener("click", function() {
+        document.querySelectorAll(".time-button").forEach(function(item) {
+            item.classList.remove("active");
+        });
+        button.classList.add("active");
+    });
+});
+
+document.querySelectorAll(".trade-button").forEach(function(button) {
+    button.addEventListener("click", function() {
+        const direction = button.dataset.direction;
+        const market = document.getElementById("market-select").value;
+        const amount = Number(document.getElementById("order-amount").value);
+        const duration = document.getElementById("order-duration").value;
+        const message = document.getElementById("trade-message");
+
+        if (!Number.isFinite(amount) || amount < 1 || amount > 10000) {
+            message.textContent =
+                "Enter a practice amount between $1 and $10,000.";
+            return;
+        }
+
+        message.textContent = direction + " practice selection for " +
+            market + " — $" + amount.toFixed(2) + " for " + duration +
+            " minute(s). No real trade was placed.";
+    });
+});
+
+document.getElementById("market-select").addEventListener("change", function() {
+    document.getElementById("trade-message").textContent =
+        "Selected " + this.value +
+        ". The quote is from Deriv; chart artwork and orders remain practice-only.";
+});
+function selectWatchlistMarket(symbol) {
+    const selector = document.getElementById("market-select");
+    const message = document.getElementById("trade-message");
+    const feed = document.getElementById("deriv-market-feed");
+
+    if (!selector || !message || !feed) {
+        return;
+    }
+
+    const option = Array.from(selector.options).find(function (item) {
+        return item.value.toUpperCase() === symbol.toUpperCase();
+    });
+
+    if (!option) {
+        message.textContent =
+            symbol + " is not yet available in the terminal selector.";
+        return;
+    }
+
+    selector.value = option.value;
+    selector.dispatchEvent(new Event("change", { bubbles: true }));
+
+    message.textContent =
+        symbol + " selected. Check the displayed quote before making a practice selection.";
+
+    feed.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+</script>
+</body>
+</html>

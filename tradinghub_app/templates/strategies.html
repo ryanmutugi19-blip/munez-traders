@@ -1,0 +1,204 @@
+{% load static %}
+
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munez Traders | Strategies</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .strategies-page {
+            max-width: 1400px;
+            margin: auto;
+            padding: 28px;
+            color: #e7edf8;
+        }
+        .page-heading {
+            margin-bottom: 28px;
+        }
+        .eyebrow {
+            color: #60a5fa;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .page-heading h1 {
+            margin: 9px 0;
+            font-size: 30px;
+        }
+        .page-heading p {
+            color: #93a4bd;
+            line-height: 1.7;
+        }
+        .demo-label {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border: 1px solid #594a28;
+            border-radius: 20px;
+            color: #fbbf24;
+            font-size: 12px;
+        }
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+        .strategy-card {
+            display: flex;
+            flex-direction: column;
+            min-height: 260px;
+            padding: 23px;
+            background: #101b2f;
+            border: 1px solid #263650;
+            border-radius: 17px;
+        }
+        .strategy-icon {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 13px;
+            background: rgba(59, 130, 246, .15);
+            color: #60a5fa;
+            font-size: 23px;
+        }
+        .strategy-card h2 {
+            margin: 20px 0 10px;
+            font-size: 19px;
+        }
+        .strategy-card p {
+            color: #9aabc3;
+            font-size: 13px;
+            line-height: 1.8;
+            flex: 1;
+        }
+        .strategy-tag {
+            display: inline-block;
+            align-self: flex-start;
+            margin-top: 14px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            background: #1c2a40;
+            color: #a9c9ff;
+            font-size: 11px;
+        }
+        .notice-panel {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #263650;
+            border-radius: 14px;
+            background: rgba(16, 27, 47, .8);
+            color: #9aabc3;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+        @media (max-width: 900px) {
+            .strategy-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 600px) {
+            .strategies-page { padding: 16px; }
+            .strategy-grid { grid-template-columns: 1fr; }
+            .page-heading h1 { font-size: 25px; }
+        }
+    </style>
+</head>
+<body class="trading-body"><header class="horizontal-nav">
+    <a class="brand" href="{% url 'home' %}">
+    <span class="brand-icon">M</span>
+    <span>MUNEZ <b>TRADERS</b><small>TRADING TERMINAL</small></span>
+</a><nav class="horizontal-links">
+    <a class="horizontal-link" href="{% url 'home' %}">▦ Dashboard</a>
+    <a class="horizontal-link" href="{% url 'markets' %}">⌁ Markets</a>
+    <a class="horizontal-link active" href="{% url 'strategies' %}">◈ Strategies</a>
+    <a class="horizontal-link" href="{% url 'history' %}">◷ Trade History</a>
+    <a class="horizontal-link" href="{% url 'settings' %}">⚙ Settings</a>
+</nav>
+
+<div class="horizontal-account">
+    <span class="top-avatar">{{ request.user.username|first|upper }}</span>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="horizontal-logout">Sign Out</button>
+    </form>
+</div>
+
+</header><main class="strategies-page">
+    <section class="page-heading">
+        <span class="eyebrow">TRADING WORKSPACE</span>
+        <h1>Trading Strategies</h1>
+        <p>Explore educational approaches to studying market movements.</p>
+        <span class="demo-label">● EDUCATIONAL DEMO</span>
+    </section><section class="strategy-grid">
+    <article class="strategy-card">
+        <div class="strategy-icon">↗</div>
+        <h2>Trend Following</h2>
+        <p>
+            Learn how traders study a market's general direction over time
+            and use charts to identify possible trends.
+        </p>
+        <span class="strategy-tag">Trend analysis</span>
+    </article>
+
+    <article class="strategy-card">
+        <div class="strategy-icon">⇄</div>
+        <h2>Support &amp; Resistance</h2>
+        <p>
+            Study price areas where movements have previously slowed,
+            paused, or changed direction.
+        </p>
+        <span class="strategy-tag">Chart analysis</span>
+    </article>
+
+    <article class="strategy-card">
+        <div class="strategy-icon">〽</div>
+        <h2>Moving Averages</h2>
+        <p>
+            Learn how average prices over selected periods can help
+            illustrate historical market direction.
+        </p>
+        <span class="strategy-tag">Technical indicator</span>
+    </article>
+
+    <article class="strategy-card">
+        <div class="strategy-icon">◷</div>
+        <h2>Multiple Timeframes</h2>
+        <p>
+            Compare charts over different time intervals to understand
+            how the view of a market can change.
+        </p>
+        <span class="strategy-tag">Timeframe analysis</span>
+    </article>
+
+    <article class="strategy-card">
+        <div class="strategy-icon">⌁</div>
+        <h2>Risk Management</h2>
+        <p>
+            Explore educational concepts such as setting practice limits,
+            considering uncertainty, and avoiding excessive exposure.
+        </p>
+        <span class="strategy-tag">Risk awareness</span>
+    </article>
+
+    <article class="strategy-card">
+        <div class="strategy-icon">▤</div>
+        <h2>Trading Journal</h2>
+        <p>
+            Learn to record practice decisions, explain your reasoning,
+            and review outcomes to improve your understanding.
+        </p>
+        <span class="strategy-tag">Performance review</span>
+    </article>
+</section>
+
+<section class="notice-panel">
+    <strong>Educational notice</strong><br>
+    These strategy descriptions are for learning and interface testing.
+    They are not live trading signals, guaranteed methods, or financial advice.
+    E.Traders is not currently executing real trades from this page.
+</section>
+
+</main></body>
+</html>

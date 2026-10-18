@@ -1,0 +1,225 @@
+{% load static %}
+
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munez Traders | Markets</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .markets-page {
+            max-width: 1400px;
+            margin: auto;
+            padding: 28px;
+            color: #e7edf8;
+        }
+        .markets-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+        .markets-heading h1 {
+            margin: 8px 0;
+            font-size: 30px;
+        }
+        .markets-heading p {
+            color: #93a4bd;
+        }
+        .market-tag {
+            color: #60a5fa;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .demo-badge {
+            border: 1px solid #34415b;
+            border-radius: 30px;
+            padding: 10px 14px;
+            color: #fbbf24;
+            font-size: 12px;
+        }
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+        .market-card {
+            background: #101b2f;
+            border: 1px solid #263650;
+            border-radius: 16px;
+            padding: 22px;
+        }
+        .market-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .market-symbol {
+            font-weight: bold;
+            font-size: 17px;
+        }
+        .market-type {
+            display: block;
+            color: #8fa1bc;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .market-price {
+            font-size: 27px;
+            font-weight: bold;
+            margin-top: 24px;
+        }
+        .market-change {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .up { color: #34d399; }
+        .down { color: #fb7185; }
+        .market-table-wrap {
+            margin-top: 24px;
+            overflow-x: auto;
+            background: #101b2f;
+            border: 1px solid #263650;
+            border-radius: 16px;
+            padding: 20px;
+        }
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 460px;
+        }
+        .market-table th,
+        .market-table td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #263650;
+        }
+        .market-table th {
+            color: #8fa1bc;
+            font-size: 11px;
+        }
+        .market-table td {
+            font-size: 13px;
+        }
+        .market-table tr:last-child td {
+            border-bottom: none;
+        }
+        .market-note {
+            color: #91a1b9;
+            font-size: 12px;
+            line-height: 1.7;
+            margin-top: 24px;
+        }
+        @media (max-width: 700px) {
+            .markets-page { padding: 16px; }
+            .market-grid { grid-template-columns: 1fr; }
+            .markets-heading h1 { font-size: 25px; }
+        }
+    </style>
+</head><body class="trading-body"><header class="horizontal-nav">
+   <a class="brand" href="{% url 'home' %}">
+    <span class="brand-icon">M</span>
+    <span>MUNEZ <b>TRADERS</b><small>TRADING TERMINAL</small></span>
+</a><nav class="horizontal-links">
+    <a class="horizontal-link" href="{% url 'home' %}">▦ Dashboard</a>
+    <a class="horizontal-link active" href="{% url 'markets' %}">⌁ Markets</a>
+    <a class="horizontal-link" href="{% url 'strategies' %}">◈ Strategies</a>
+    <a class="horizontal-link" href="{% url 'history' %}">◷ Trade History</a>
+    <a class="horizontal-link" href="{% url 'settings' %}">⚙ Settings</a>
+</nav>
+
+<div class="horizontal-account">
+    <span class="top-avatar">{{ request.user.username|first|upper }}</span>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="horizontal-logout">Sign Out</button>
+    </form>
+</div>
+
+</header><main class="markets-page">
+    <section class="markets-heading">
+        <div>
+            <span class="market-tag">MARKET OVERVIEW</span>
+            <h1>Explore Markets</h1>
+            <p>Explore the instruments displayed in your trading terminal.</p>
+        </div>
+        <span class="demo-badge">● DEMO DATA ONLY</span>
+    </section><section class="market-grid">
+    {% for market in demo_markets %}
+    <article class="market-card">
+        <div class="market-card-top">
+            <div>
+                <div class="market-symbol">{{ market.symbol }}</div>
+                <span class="market-type">
+                    {% if market.symbol == 'GOLD' %}
+                        Commodity
+                    {% else %}
+                        Forex market
+                    {% endif %}
+                </span>
+            </div>
+            <span class="market-change {% if market.direction == 'up' %}up{% else %}down{% endif %}">
+                {{ market.change }}
+            </span>
+        </div>
+
+        <div class="market-price">{{ market.price }}</div>
+
+        <div class="market-change {% if market.direction == 'up' %}up{% else %}down{% endif %}">
+            {% if market.direction == 'up' %}
+                ▲ Illustrative increase
+            {% else %}
+                ▼ Illustrative decrease
+            {% endif %}
+        </div>
+    </article>
+    {% empty %}
+    <article class="market-card">
+        No market examples are available yet.
+    </article>
+    {% endfor %}
+</section>
+
+<section class="market-table-wrap">
+    <h2>Market Watch</h2>
+
+    <table class="market-table">
+        <thead>
+            <tr>
+                <th>INSTRUMENT</th>
+                <th>DEMO PRICE</th>
+                <th>CHANGE</th>
+                <th>STATUS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for market in demo_markets %}
+            <tr>
+                <td>{{ market.symbol }}</td>
+                <td>{{ market.price }}</td>
+                <td class="{% if market.direction == 'up' %}up{% else %}down{% endif %}">
+                    {{ market.change }}
+                </td>
+                <td>Practice display</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No market examples available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<p class="market-note">
+    These are fictional example values for website testing, not live prices or trading signals.
+    E.Traders is not yet connected to a live market feed.
+</p>
+
+</main></body>
+</html>

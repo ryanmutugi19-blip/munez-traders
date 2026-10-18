@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#050816">
+    <title>Munez Traders | Welcome</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                radial-gradient(ellipse at 50% 45%, #142951 0%, #080f22 45%, #030611 100%);
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+        .intro {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .grid {
+            position: absolute;
+            inset: -50%;
+            opacity: .2;
+            background-image:
+                linear-gradient(rgba(56,189,248,.18) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56,189,248,.18) 1px, transparent 1px);
+            background-size: 45px 45px;
+            transform: perspective(450px) rotateX(55deg);
+            animation: gridMove 12s linear infinite;
+        }
+
+        .glow {
+            position: absolute;
+            width: 340px;
+            height: 340px;
+            border-radius: 50%;
+            background: #2563eb;
+            filter: blur(130px);
+            opacity: .25;
+            animation: glowPulse 3s ease-in-out infinite alternate;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            width: min(90%, 650px);
+            padding: 35px 20px;
+            animation: reveal 1.2s ease both;
+        }
+
+        .symbol {
+            width: 86px;
+            height: 86px;
+            margin: 0 auto 25px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(103,232,249,.7);
+            border-radius: 25px;
+            background: linear-gradient(145deg, #122a51, #11122d);
+            box-shadow: 0 0 35px rgba(56,189,248,.25);
+            color: #67e8f9;
+            font-size: 38px;
+            font-weight: 900;
+            animation: logoFloat 2.5s ease-in-out infinite;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(30px, 7vw, 58px);
+            font-weight: 900;
+            letter-spacing: clamp(2px, 1vw, 7px);
+            background: linear-gradient(90deg, #fff, #67e8f9, #a78bfa, #fff);
+            background-size: 200% auto;
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            animation: shine 3s linear infinite;
+        }
+
+        .tagline {
+            margin-top: 17px;
+            color: #b8c9e5;
+            font-size: 13px;
+            letter-spacing: 3px;
+        }
+
+        .candles {
+            height: 62px;
+            margin: 35px auto 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+        }
+
+        .candle {
+            position: relative;
+            width: 8px;
+            height: var(--h);
+            border-radius: 2px;
+            background: var(--c);
+            box-shadow: 0 0 12px color-mix(in srgb, var(--c), transparent 50%);
+            animation: candlePulse 1s ease-in-out infinite alternate;
+            animation-delay: var(--d);
+        }
+
+        .candle::before {
+            content: "";
+            position: absolute;
+            left: 3px;
+            top: -9px;
+            bottom: -9px;
+            width: 2px;
+            background: var(--c);
+            opacity: .8;
+            z-index: -1;
+        }
+
+        .loader {
+            width: min(300px, 80%);
+            height: 4px;
+            margin: 0 auto;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #1c2a44;
+        }
+
+        .loader-bar {
+            width: 35%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+            box-shadow: 0 0 15px #38bdf8;
+            animation: loading 2.4s ease-in-out infinite;
+        }
+
+        .status {
+            margin-top: 18px;
+            color: #8298b9;
+            font-size: 10px;
+            letter-spacing: 3px;
+        }
+
+        .skip {
+            margin-top: 28px;
+            padding: 10px 18px;
+            border: 1px solid rgba(148,163,184,.3);
+            border-radius: 30px;
+            background: rgba(255,255,255,.04);
+            color: #cbd5e1;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .skip:hover {
+            border-color: #38bdf8;
+            color: #fff;
+        }
+
+        @keyframes reveal {
+            from { opacity: 0; transform: translateY(22px) scale(.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        @keyframes loading {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(390%); }
+        }
+
+        @keyframes candlePulse {
+            from { opacity: .55; }
+            to { opacity: 1; }
+        }
+
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 90px; }
+        }
+
+        @keyframes glowPulse {
+            from { transform: scale(.85); opacity: .17; }
+            to { transform: scale(1.15); opacity: .3; }
+        }
+
+        .intro.leaving .content {
+            animation: exit 0.55s ease forwards;
+        }
+
+        @keyframes exit {
+            to { opacity: 0; transform: translateY(-15px) scale(1.03); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="intro" id="intro">
+        <div class="grid"></div>
+        <div class="glow"></div>
+
+        <section class="content">
+            <div class="symbol">M</div>
+
+            <h1>MUNEZ TRADERS</h1>
+            <p class="tagline">TRADE SMART. THINK AHEAD.</p>
+
+            <div class="candles" aria-hidden="true">
+                <span class="candle" style="--h:22px;--c:#38bdf8;--d:0s"></span>
+                <span class="candle" style="--h:38px;--c:#34d399;--d:.1s"></span>
+                <span class="candle" style="--h:28px;--c:#f87171;--d:.2s"></span>
+                <span class="candle" style="--h:49px;--c:#34d399;--d:.3s"></span>
+                <span class="candle" style="--h:34px;--c:#38bdf8;--d:.4s"></span>
+                <span class="candle" style="--h:55px;--c:#34d399;--d:.5s"></span>
+                <span class="candle" style="--h:40px;--c:#a78bfa;--d:.6s"></span>
+                <span class="candle" style="--h:25px;--c:#f87171;--d:.7s"></span>
+                <span class="candle" style="--h:46px;--c:#34d399;--d:.8s"></span>
+                <span class="candle" style="--h:32px;--c:#38bdf8;--d:.9s"></span>
+            </div>
+
+            <div class="loader">
+                <div class="loader-bar"></div>
+            </div>
+
+            <p class="status" id="status">PREPARING YOUR EXPERIENCE</p>
+            <button class="skip" id="skip" type="button">Continue to website →</button>
+        </section>
+    </main>
+
+    <script>
+        
+    let finished = false;
+
+    function enterWebsite() {
+        if (finished) return;
+        finished = true;
+
+        const intro = document.getElementById("intro");
+        const status = document.getElementById("status");
+
+        if (intro) {
+            intro.classList.add("leaving");
+        }
+
+        if (status) {
+            status.textContent = "WELCOME";
+        }
+
+        setTimeout(function () {
+            window.location.href = "/login/";
+        }, 600);
+    }
+
+    document.getElementById("skip").addEventListener("click", enterWebsite);
+
+    // Automatically continue after the opening animation
+    window.setTimeout(enterWebsite, 3500);
+</script>
+</body>
+</html>

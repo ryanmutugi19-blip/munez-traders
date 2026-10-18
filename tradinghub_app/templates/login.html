@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munez Traders | Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <section class="login-page">
+        <div class="login-container">
+            <div class="login-logo">Munez Traders</div>
+
+            <h1>Welcome Back</h1>
+            <p>Login to access your trading dashboard.</p>
+
+            {% if form.errors %}
+                <p class="error-message">
+                    Login failed. Check your username and password.
+                </p>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="id_username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="id_password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="login-submit">
+                    Login
+                </button>
+            </form>
+
+            <p class="register-link">
+                Don't have an account?
+                <a href="{% url 'register' %}">Create an account</a>
+            </p>
+
+            {% if affiliate_enabled %}
+                <p class="register-link">
+                    New to Deriv?
+                    <a href="{% url 'deriv_signup' %}">Open a Deriv account</a>
+                </p>
+            {% endif %}
+
+            <a href="{% url 'home' %}" class="back-home">
+                ← Back to Home
+            </a>
+        </div>
+    </section>
+</body>
+</html>

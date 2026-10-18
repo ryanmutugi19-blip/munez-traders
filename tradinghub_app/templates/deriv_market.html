@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E.Traders | Live Market Data</title>
+</head>
+<body>
+    <h1>E.Traders — Market Data</h1>
+
+    <div id="deriv-market"
+         data-app-id="{{ deriv_app_id }}">
+        <label for="live-market-select">Market</label>
+        <select id="live-market-select">
+            <option value="EUR/USD" data-deriv-symbol="frxEURUSD">EUR/USD</option>
+            <option value="GBP/USD" data-deriv-symbol="frxGBPUSD">GBP/USD</option>
+            <option value="USD/JPY" data-deriv-symbol="frxUSDJPY">USD/JPY</option>
+            <option value="BTC/USD" data-deriv-symbol="cryBTCUSD">BTC/USD</option>
+        </select>
+        <p id="connection-status" aria-live="polite">Checking Deriv configuration...</p>
+        <h2 id="live-market-title">EUR/USD</h2>
+        <p id="market-price">Waiting for live price...</p>
+        <p>Public market data only. This page does not access your account or place trades.</p>
+    </div>
+
+    {% if affiliate_enabled %}
+        <a href="{% url 'deriv_signup' %}">Open a Deriv account</a>
+    {% endif %}
+
+    <script src="{% static 'js/deriv_market.js' %}" defer></script>
+</body>
+</html>

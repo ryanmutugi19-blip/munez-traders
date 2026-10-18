@@ -1,0 +1,215 @@
+{% load static %}
+
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Munez Traders | Trade History</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .history-page {
+            max-width: 1400px;
+            margin: auto;
+            padding: 28px;
+            color: #e7edf8;
+        }
+        .history-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 26px;
+        }
+        .eyebrow {
+            color: #60a5fa;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .history-heading h1 {
+            margin: 9px 0;
+            font-size: 30px;
+        }
+        .history-heading p {
+            color: #93a4bd;
+            line-height: 1.7;
+        }
+        .demo-badge {
+            border: 1px solid #594a28;
+            border-radius: 25px;
+            padding: 9px 13px;
+            color: #fbbf24;
+            font-size: 12px;
+        }
+        .history-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            padding: 20px;
+            background: #101b2f;
+            border: 1px solid #263650;
+            border-radius: 15px;
+        }
+        .stat-card span {
+            display: block;
+            color: #93a4bd;
+            font-size: 12px;
+        }
+        .stat-card strong {
+            display: block;
+            margin-top: 12px;
+            font-size: 25px;
+        }
+        .history-panel {
+            background: #101b2f;
+            border: 1px solid #263650;
+            border-radius: 16px;
+            padding: 22px;
+        }
+        .history-panel h2 {
+            margin-top: 0;
+            font-size: 19px;
+        }
+        .table-wrap {
+            overflow-x: auto;
+        }
+        .history-table {
+            width: 100%;
+            min-width: 650px;
+            border-collapse: collapse;
+        }
+        .history-table th,
+        .history-table td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid #263650;
+            font-size: 13px;
+        }
+        .history-table th {
+            color: #93a4bd;
+            font-size: 11px;
+            letter-spacing: 1px;
+        }
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: #1c2a40;
+            color: #a9c9ff;
+            font-size: 11px;
+        }
+        .empty-state {
+            padding: 35px 15px;
+            text-align: center;
+            color: #93a4bd;
+            line-height: 1.8;
+        }
+        .history-note {
+            margin-top: 22px;
+            color: #93a4bd;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        @media (max-width: 700px) {
+            .history-page { padding: 16px; }
+            .history-stats { grid-template-columns: 1fr; }
+            .history-heading h1 { font-size: 25px; }
+        }
+    </style>
+</head>
+<body class="trading-body"><header class="horizontal-nav">
+    
+        <a class="brand" href="{% url 'home' %}">
+    <span class="brand-icon">M</span>
+    <span>MUNEZ <b>TRADERS</b><small>TRADING TERMINAL</small></span>
+</a><nav class="horizontal-links">
+    <a class="horizontal-link" href="{% url 'home' %}">▦ Dashboard</a>
+    <a class="horizontal-link" href="{% url 'markets' %}">⌁ Markets</a>
+    <a class="horizontal-link" href="{% url 'strategies' %}">◈ Strategies</a>
+    <a class="horizontal-link active" href="{% url 'history' %}">◷ Trade History</a>
+    <a class="horizontal-link" href="{% url 'settings' %}">⚙ Settings</a>
+</nav>
+
+<div class="horizontal-account">
+    <span class="top-avatar">{{ request.user.username|first|upper }}</span>
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="horizontal-logout">Sign Out</button>
+    </form>
+</div>
+
+</header><main class="history-page">
+    <section class="history-heading">
+        <div>
+            <span class="eyebrow">ACCOUNT ACTIVITY</span>
+            <h1>Trade History</h1>
+            <p>Review the trade records saved to your E.Traders account.</p>
+        </div>
+        <span class="demo-badge">● ACCOUNT RECORDS</span>
+    </section><section class="history-stats">
+    <article class="stat-card">
+        <span>Total recorded trades</span>
+        <strong>{{ trades|length }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Open trades</span>
+        <strong>{{ trades|length }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Record source</span>
+        <strong style="font-size:18px;">Your account</strong>
+    </article>
+</section>
+
+<section class="history-panel">
+    <h2>Recent Activity</h2>
+
+    <div class="table-wrap">
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>INSTRUMENT</th>
+                    <th>TYPE</th>
+                    <th>AMOUNT</th>
+                    <th>STATUS</th>
+                    <th>DATE</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for trade in trades %}
+                <tr>
+                    <td>{{ trade.symbol|default:"—" }}</td>
+                    <td>{{ trade.trade_type|default:"—" }}</td>
+                    <td>{{ trade.amount|default:"—" }}</td>
+                    <td><span class="status">{{ trade.status|default:"Recorded" }}</span></td>
+                    <td>{{ trade.created_at|date:"d M Y, H:i"|default:"—" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <strong>No trade records yet</strong><br>
+                            Your saved trade records will appear here when available.
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<p class="history-note">
+    This page displays records stored in your E.Traders database.
+    It does not show transactions from Deriv or another broker unless a supported integration is implemented.
+</p>
+
+</main></body>
+</html>

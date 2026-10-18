@@ -1,0 +1,273 @@
+{% load static %}
+
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Munez Traders | Settings</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}"><style>
+    .settings-page {
+        max-width: 1100px;
+        margin: auto;
+        padding: 28px;
+        color: #e7edf8;
+    }
+
+    .settings-heading {
+        margin-bottom: 28px;
+    }
+
+    .eyebrow {
+        color: #60a5fa;
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 2px;
+    }
+
+    .settings-heading h1 {
+        margin: 10px 0;
+        font-size: 30px;
+    }
+
+    .settings-heading p,
+    .settings-card > p {
+        color: #93a4bd;
+        line-height: 1.7;
+        font-size: 13px;
+    }
+
+    .settings-card {
+        padding: 24px;
+        margin-bottom: 20px;
+        background: #101b2f;
+        border: 1px solid #263650;
+        border-radius: 16px;
+    }
+
+    .settings-card h2 {
+        margin-top: 0;
+        font-size: 18px;
+    }
+
+    .settings-field {
+        margin-top: 22px;
+    }
+
+    .settings-field label {
+        display: block;
+        margin-bottom: 9px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .settings-field select {
+        display: block;
+        width: 100%;
+        max-width: 500px;
+        box-sizing: border-box;
+        padding: 13px;
+        background: #0b1425;
+        color: #e7edf8;
+        border: 1px solid #34415b;
+        border-radius: 9px;
+    }
+
+    .check-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 22px;
+        color: #d7e0f2;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .check-row input {
+        margin-top: 4px;
+        accent-color: #3b82f6;
+    }
+
+    .settings-button {
+        padding: 13px 22px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 9px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .settings-button:hover {
+        background: #2563eb;
+    }
+
+    .account-info {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 18px;
+    }
+
+    .info-box {
+        padding: 16px;
+        background: #0b1425;
+        border-radius: 10px;
+    }
+
+    .info-box span {
+        display: block;
+        color: #93a4bd;
+        font-size: 12px;
+    }
+
+    .info-box strong {
+        display: block;
+        margin-top: 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .message-item {
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        background: #101b2f;
+        border: 1px solid #34415b;
+        border-radius: 9px;
+        color: #d7e0f2;
+        font-size: 13px;
+    }
+
+    .notice {
+        color: #93a4bd;
+        font-size: 13px;
+        line-height: 1.8;
+    }
+
+    @media (max-width: 700px) {
+        .settings-page {
+            padding: 16px;
+        }
+
+        .settings-heading h1 {
+            font-size: 25px;
+        }
+
+        .account-info {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+</head><body class="trading-body"><header class="horizontal-nav">
+   <a class="brand" href="{% url 'home' %}">
+    <span class="brand-icon">M</span>
+    <span>MUNEZ <b>TRADERS</b><small>TRADING TERMINAL</small></span>
+</a><nav class="horizontal-links">
+    <a class="horizontal-link" href="{% url 'home' %}">▦ Dashboard</a>
+    <a class="horizontal-link" href="{% url 'markets' %}">⌁ Markets</a>
+    <a class="horizontal-link" href="{% url 'strategies' %}">◈ Strategies</a>
+    <a class="horizontal-link" href="{% url 'history' %}">◷ Trade History</a>
+    <a class="horizontal-link active" href="{% url 'settings' %}">⚙ Settings</a>
+</nav>
+
+<div class="horizontal-account">
+    <span class="top-avatar">{{ request.user.username|first|upper }}</span>
+
+    <form action="{% url 'logout' %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="horizontal-logout">Sign Out</button>
+    </form>
+</div>
+
+</header><main class="settings-page"><section class="settings-heading">
+    <span class="eyebrow">WORKSPACE PREFERENCES</span>
+    <h1>Settings</h1>
+    <p>Manage your E.Traders account information and practice preferences.</p>
+</section>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="message-item">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
+<section class="settings-card">
+    <h2>Account Information</h2>
+    <p>Your current profile details.</p>
+
+    <div class="account-info">
+        <div class="info-box">
+            <span>Username</span>
+            <strong>{{ username }}</strong>
+        </div>
+
+        <div class="info-box">
+            <span>Email address</span>
+            <strong>{{ email|default:"No email provided" }}</strong>
+        </div>
+    </div>
+</section>
+
+<form method="post">
+    {% csrf_token %}
+
+    <section class="settings-card">
+        <h2>Market Preferences</h2>
+        <p>Select your preferred market and chart timeframe.</p>
+
+        <div class="settings-field">
+            <label for="preferred_market">Preferred market</label>
+            <select name="preferred_market" id="preferred_market">
+                <option value="EUR/USD">EUR/USD</option>
+                <option value="GBP/USD">GBP/USD</option>
+                <option value="USD/JPY">USD/JPY</option>
+                <option value="GOLD">GOLD</option>
+            </select>
+        </div>
+
+        <div class="settings-field">
+            <label for="chart_timeframe">Default chart timeframe</label>
+            <select name="chart_timeframe" id="chart_timeframe">
+                <option value="1m">1 minute</option>
+                <option value="5m">5 minutes</option>
+                <option value="15m">15 minutes</option>
+                <option value="1h">1 hour</option>
+                <option value="4h">4 hours</option>
+                <option value="1d">1 day</option>
+            </select>
+        </div>
+    </section>
+
+    <section class="settings-card">
+        <h2>Practice Safeguards</h2>
+        <p>These options configure preferences for the practice interface.</p>
+
+        <label class="check-row">
+            <input type="checkbox" name="confirm_trades" checked>
+            <span>
+                <strong>Confirm practice selections</strong><br>
+                Keep confirmation enabled for practice actions where supported.
+            </span>
+        </label>
+
+        <label class="check-row">
+            <input type="checkbox" name="notifications" checked>
+            <span>
+                <strong>Enable notifications</strong><br>
+                Allow the website to display relevant status messages.
+            </span>
+        </label>
+    </section>
+
+    <button type="submit" class="settings-button">Save Settings</button>
+</form>
+
+<section class="settings-card" style="margin-top: 24px;">
+    <h2>Connection Status</h2>
+    <p class="notice">
+        Deriv integration and live trading are not enabled by this page.
+        Do not enter broker passwords or account credentials here.
+    </p>
+</section>
+
+</main></body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | E.Traders</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Login Page -->
+
+    <section class="login-page">
+
+        <div class="login-container">
+
+            <!-- Logo -->
+            <div class="login-logo">
+                E.Traders
+            </div>
+
+            <h1>Welcome Back</h1>
+
+            <p>
+                Login to access your trading dashboard.
+            </p>
+
+
+            <!-- Login Form -->
+            <form id="loginForm">
+
+                <!-- Email -->
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Password -->
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-container">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="password-toggle"
+                        >
+                            👁
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Remember Me -->
+                <div class="login-options">
+
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="remember"
+                        >
+
+                        Remember me
+                    </label>
+
+                    <a href="#">
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+
+                <!-- Login Button -->
+                <button
+                    type="submit"
+                    class="login-submit"
+                >
+                    Login
+                </button>
+
+            </form>
+
+
+            <!-- Register Link -->
+            <p class="register-link">
+
+                Don't have an account?
+
+                <a href="register.html">
+                    Create an account
+                </a>
+
+            </p>
+
+
+            <!-- Back Home -->
+            <a
+                href="index.html"
+                class="back-home"
+            >
+                ← Back to Home
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticating...</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 100px; background: #1a1a1a; color: #fff; }
+    </style>
+</head>
+<body>
+    <h2>Logging you in with Deriv...</h2>
+    <p>Please wait while we set up your session.</p>
+
+    <script src="{% static 'js/deriv.js' %}"></script>
+    <script>
+        // Extract OAuth tokens from the URL parameters provided by Deriv
+        const urlParams = new URLSearchParams(window.location.search);
+        const token1 = urlParams.get('token1');
+        const acct1 = urlParams.get('acct1');
+
+        if (token1 && acct1) {
+            // Save tokens securely in localStorage
+            localStorage.setItem('deriv_token', token1);
+            localStorage.setItem('deriv_acct', acct1);
+
+            // Redirect to the main index/dashboard page
+            window.location.href = '/index/'; // Update this to match your Django URL route for index
+        } else {
+            alert('Authentication failed or was canceled.');
+            window.location.href = '/login/'; // Update this to match your Django URL route for login
+        }
+    </script>
+</body>
+</html>
