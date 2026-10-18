@@ -4,6 +4,14 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 
+@override_settings(STORAGES={
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+})
 class DerivIntegrationTests(TestCase):
     @override_settings(DERIV_AFFILIATE_URL='')
     def test_signup_route_reports_missing_partner_configuration(self):
@@ -48,18 +56,18 @@ class DerivIntegrationTests(TestCase):
         self.assertContains(response, 'Public market data only.')
         self.assertContains(response, 'id="live-market-select"')
 
-    @override_settings(DERIV_APP_ID='12345')
+    @override_settings(DERIV_APP_ID='DerivApp_123')
     def test_dashboard_uses_deriv_live_market_feed(self):
         user = get_user_model().objects.create_user(
             username='deriv-dashboard-user',
             password='test-password',
         )
         self.client.force_login(user)
-        response = self.client.get(reverse('home'))
+        response = self.client.get(reverse('dashboard'))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="deriv-market-feed"')
-        self.assertContains(response, 'data-app-id="12345"')
+        self.assertContains(response, 'data-app-id="DerivApp_123"')
         self.assertContains(response, 'id="live-market-price"')
         self.assertContains(response, 'src="/static/js/deriv_market.js"')
         self.assertContains(response, 'practice-only')

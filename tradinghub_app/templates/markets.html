@@ -221,5 +221,80 @@
     E.Traders is not yet connected to a live market feed.
 </p>
 
-</main></body>
+</main>
+<!-- Put your Deriv App ID here -->
+<script>
+    const APP_ID = '34I2Ld9mLGXrRbSuvRXqg'; // <--- Put your actual Deriv App ID here!
+
+    // Connect to Deriv's official WebSocket API
+    const ws = new WebSocket(`wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`);
+
+    ws.onopen = function () {
+        console.log('Connected to Deriv WebSocket API');
+        
+        // Remove the demo badge status
+        const badge = document.querySelector('.demo-badge');
+        if (badge) {
+            badge.innerText = '● LIVE DERIV FEED';
+            badge.style.color = '#34d399';
+        }
+
+        // Subscribe to live tick prices for Volatility 100 (R_100) and EUR/USD (frxEURUSD)
+        ws.send(JSON.stringify({ ticks: 'R_100', subscribe: 1 }));
+        ws.send(JSON.stringify({ ticks: 'frxEURUSD', subscribe: 1 }));
+    };
+
+    // Store previous price values to calculate live up/down color changes
+    const previousPrices = {};
+
+    ws.onmessage = function (event) {
+        const response = JSON.parse(event.data);
+
+        if (response.msg_type === 'tick') {
+            const tick = response.tick;
+            const symbol = tick.symbol;
+            const currentPrice = tick.quote;
+
+            // Target HTML elements for this market symbol
+            const priceElement = document.getElementById(`price-${symbol}`);
+            const changeElement = document.getElementById(`change-${symbol}`);
+            const tablePriceElement = document.getElementById(`table-price-${symbol}`);
+            const tableStatusElement = document.getElementById(`table-status-${symbol}`);
+
+            if (priceElement) {
+                // Determine direction based on previous price tick
+                const lastPrice = previousPrices[symbol] || currentPrice;
+                const isUp = currentPrice >= lastPrice;
+
+                // Update cards & table display
+                priceElement.innerText = currentPrice.toFixed(4);
+                if (tablePriceElement) tablePriceElement.innerText = currentPrice.toFixed(4);
+
+                if (isUp) {
+                    priceElement.className = 'market-price up';
+                    if (changeElement) {
+                        changeElement.className = 'market-change up';
+                        changeElement.innerText = '▲ Live Price Increasing';
+                    }
+                    if (tableStatusElement) tableStatusElement.innerText = 'Streaming (Up)';
+                } else {
+                    priceElement.className = 'market-price down';
+                    if (changeElement) {
+                        changeElement.className = 'market-change down';
+                        changeElement.innerText = '▼ Live Price Decreasing';
+                    }
+                    if (tableStatusElement) tableStatusElement.innerText = 'Streaming (Down)';
+                }
+
+                // Save last price reference
+                previousPrices[symbol] = currentPrice;
+            }
+        }
+    };
+
+    ws.onerror = function (error) {
+        console.error('Deriv WebSocket Error:', error);
+    };
+</script>
+</body>
 </html>

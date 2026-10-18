@@ -24,9 +24,9 @@
     }
 
     const appId = config.dataset.appId;
-    if (!/^\d+$/.test(appId || "")) {
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(appId || "")) {
         status.textContent =
-            "Live prices are unavailable: configure a numeric Deriv app ID.";
+            "Live prices are unavailable: configure a valid Deriv app ID.";
         return;
     }
 
